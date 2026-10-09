@@ -1,0 +1,3 @@
+Instance.new:Part()
+  Part.Parent = workspace
+  end
