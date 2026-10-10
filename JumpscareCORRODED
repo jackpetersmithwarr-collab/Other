@@ -1,0 +1,237 @@
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+--// SERVICES
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+
+--// REMOVE OLD GUI
+pcall(function()
+ if CoreGui:FindFirstChild("JumpscareGui") then
+  CoreGui.JumpscareGui:Destroy()
+ end
+end)
+
+--// LOAD SOUND
+local function loadSound(data)
+ local sound = Instance.new("Sound")
+ local id = tostring(data[1])
+ local props = data[2] or {}
+
+ for k, v in pairs(props) do
+  if k ~= "SoundId" and k ~= "Parent" then
+   sound[k] = v
+  end
+ end
+
+ if id:find("rbxasset://") then
+  sound.SoundId = id
+ else
+  sound.SoundId = "rbxassetid://" .. id:gsub("%D", "")
+ end
+
+ sound.Parent = workspace
+ return sound
+end
+
+--// CONFIG
+local config = {
+ Image1 = "rbxassetid://71556727671445",
+ Image2 = "rbxassetid://106265973244773",
+
+ Shake = true,
+
+ Sound1 = {0, {Volume = 8}},
+ Sound2 = {116282238939992, {Volume = 10}},
+
+ Flashing = {
+  true,
+  Color3.fromRGB(0, 250, 0)
+ },
+
+ --// TEASE SETTINGS
+ Tease = {
+  true,
+
+  Min = 1,
+  Max = 2,
+
+  -- How long to wait after each "get closer"
+  StepDelayMin = 0.2,
+  StepDelayMax = 0.3
+ }
+}
+
+--// CREATE GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "JumpscareGui"
+gui.IgnoreGuiInset = true
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+gui.Parent = CoreGui
+
+local bg = Instance.new("Frame")
+bg.Size = UDim2.new(1, 0, 1, 0)
+bg.BackgroundColor3 = Color3.new(0, 200, 0)
+bg.BorderSizePixel = 0
+bg.BackgroundTransparency = 0
+bg.ZIndex = 999
+bg.Parent = gui
+
+local face = Instance.new("ImageLabel")
+face.AnchorPoint = Vector2.new(0.5, 0.5)
+face.Position = UDim2.new(0.5, 0, 0.5, 0)
+face.Size = UDim2.new(0, 150, 0, 150)
+face.BackgroundTransparency = 1
+face.Image = config.Image1
+face.ResampleMode = Enum.ResamplerMode.Pixelated
+face.ZIndex = 1000
+face.Parent = bg
+
+--// SIZES
+local screenY = gui.AbsoluteSize.Y
+
+local minSize = screenY / 5
+local maxSize = screenY / 2.5
+
+--// TEASE SOUNDS
+local sound1, sound2
+
+if config.Sound1 then
+ sound1 = loadSound(config.Sound1)
+end
+
+if config.Sound2 then
+ sound2 = loadSound(config.Sound2)
+end
+
+--// TEASE
+if config.Tease and config.Tease[1] then
+
+ local loops = math.random(
+  config.Tease.Min,
+  config.Tease.Max
+ )
+
+ if sound1 then
+  sound1:Play()
+ end
+
+ --// START AT SMALL SIZE
+ face.Size = UDim2.new(
+  0,
+  minSize,
+  0,
+  minSize
+ )
+
+ --// HOW MUCH IT GROWS EACH STEP
+ local grow = (maxSize - minSize) / loops
+
+ --// GET CLOSER → WAIT → GET CLOSER → WAIT
+ for i = 1, loops do
+
+  -- Get closer
+  face.Size = face.Size + UDim2.new(
+   0,
+   grow,
+   0,
+   grow
+  )
+
+  -- Wait before getting closer again
+  task.wait(math.random(
+   config.Tease.StepDelayMin * 30,
+   config.Tease.StepDelayMax * 50
+  ) / 100)
+ end
+end
+
+--// FLASHING
+if config.Flashing and config.Flashing[1] then
+ task.spawn(function()
+  while gui.Parent do
+   bg.BackgroundColor3 = config.Flashing[2]
+
+   task.wait(
+    math.random(25, 100) / 1000
+   )
+
+   bg.BackgroundColor3 = Color3.new(0, 189, 0)
+
+   task.wait(
+    math.random(25, 100) / 1000
+   )
+  end
+ end)
+end
+
+--// SHAKE
+if config.Shake then
+ task.spawn(function()
+
+  local basePos = face.Position
+
+  while gui.Parent do
+
+   face.Position = basePos + UDim2.new(
+    0,
+    math.random(-30, 20),
+    0,
+    math.random(-10, 10)
+   )
+
+   face.Rotation = math.random(-55, 85)
+
+   task.wait()
+  end
+ end)
+end
+
+--// FINAL JUMPSCARE
+face.Image = config.Image2
+
+face.Size = UDim2.new(
+ 0,
+ maxSize,
+ 0,
+ maxSize
+)
+
+if sound2 then
+ sound2:Play()
+end
+
+local finalTween = TweenService:Create(
+ face,
+ TweenInfo.new(0.75),
+ {
+  Size = UDim2.new(
+   0,
+   screenY * 5,
+   0,
+   screenY * 3
+  ),
+
+  ImageTransparency = 0
+ }
+)
+
+finalTween:Play()
+
+task.wait(1.35)
+
+--// CLEANUP
+gui:Destroy()
+
+if sound1 then
+ sound1:Destroy()
+end
+
+if sound2 then
+ sound2:Destroy()
+end
+
+--// DEATH CAUSE
+game.ReplicatedStorage.GameStats["Player_" .. player.Name]
+ .Total.DeathCause.Value = "Corrode"
