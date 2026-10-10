@@ -1,3 +1,33 @@
-Instance.new:Part()
-  Part.Parent = workspace
-  end
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))() 
+local Window = Library.CreateLib("Entity spawner by Greendepth", "Ocean") 
+
+local Tab = Window:NewTab("Entity Spawns") 
+local Section = Tab:NewSection("Laver mode entities")  
+Section:NewButton("Spawn Corrode", "Laver mode", function()  
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/J63633S/Laver-mode/main/Corrode"))() 
+end)
+
+Section:NewButton("Spawn Classia", "Laver mode", function()  
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/J63633S/Laver-mode/main/Classio-Reboundier"))() 
+end)
+
+Section:NewButton("Spawn Death", "Laver mode", function()  
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/J63633S/Laver-mode/main/Death"))() 
+end)
+
+Section:NewButton("Spawn Moriarty", "Laver mode", function()  
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/J63633S/Laver-mode/main/Moriarty"))() 
+end)
+
+Section:NewButton("Spawn Chaotic", "Laver mode", function()  
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/J63633S/Laver-mode/main/Chaotic"))() 
+end)
+
+Section:NewButton("Spawn Cerulean", "Laver mode", function()  
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/J63633S/Laver-mode/main/Cerulean"))() 
+end)
+
+local Section = Tab:NewSection("Interior mode entities")  
+Section:NewButton("Spawn Rammer", "interior mode", function()  
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/J63633S/Laver-mode/main/Corrode"))() 
+end)
